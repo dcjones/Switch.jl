@@ -1,6 +1,9 @@
 
 # Switch.jl
 
+[![Build Status](https://api.travis-ci.org/dcjones/Switch.jl.svg?branch=master)](https://travis-ci.org/dcjones/Switch.jl) [![Coverage Status](https://img.shields.io/coveralls/dcjones/Switch.jl.svg)](https://coveralls.io/r/dcjones/Switch.jl?branch=master)
+
+
 This package defines a C-style switch statement for Julia.
 
 The basic definition uses `@swatch`, `@case`, `@label`, and `break`.

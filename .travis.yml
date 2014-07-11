@@ -1,0 +1,17 @@
+language: cpp
+compiler:
+    - gcc
+notifications:
+    email: false
+env:
+    matrix:
+        - JULIAVERSION="julianightlies"
+before_install:
+    - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+    - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
+    - sudo apt-get update -qq -y
+    - sudo apt-get install libpcre3-dev julia -y
+script:
+  - julia -e 'Pkg.init(); Pkg.add("FactCheck"); run(`ln -s $(pwd()) $(Pkg.dir("Switch"))`); Pkg.pin("Switch"); Pkg.resolve()'
+  - julia --code-coverage test/runtests.jl
+  - julia -e 'Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

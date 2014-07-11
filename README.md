@@ -6,7 +6,7 @@
 
 This package defines a C-style switch statement for Julia.
 
-The basic definition uses `@swatch`, `@case`, `@label`, and `break`.
+The basic definition uses `@switch`, `@case`, `@default`, and `break`.
 
 ```julia
 

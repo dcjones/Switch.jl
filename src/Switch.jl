@@ -10,15 +10,32 @@ macro switch(value, body)
 
     endlabel = gensym("switchend")
 
+    hasdefault = false
+    next_is_default = false
+    default_block = {}
+
     for arg in body.args
         if isa(arg, Expr) && arg.head == :macrocall && arg.args[1] == symbol("@case")
             push!(cases, arg.args[2])
             push!(bodies, {})
+            next_is_default = false
+        elseif isa(arg, Expr) && arg.head == :macrocall && arg.args[1] == symbol("@default")
+            if hasdefault
+                error("Multiple default cases in switch statement.")
+            end
+            hasdefault = true
+            next_is_default = true
         elseif !isempty(bodies)
             if isa(arg, Expr) && arg.head == :break
-                push!(bodies[end], Expr(:symbolicgoto, endlabel))
+                body = Expr(:symbolicgoto, endlabel)
             else
-                push!(bodies[end], esc(arg))
+                body = esc(arg)
+            end
+
+            if next_is_default
+                push!(default_block, body)
+            else
+                push!(bodies[end], body)
             end
         end
     end
@@ -33,6 +50,10 @@ macro switch(value, body)
             end
         end
         push!(dispatch, ex)
+    end
+
+    if hasdefault
+        append!(dispatch, default_block)
     end
 
     labeledbody = {}

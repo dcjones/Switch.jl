@@ -5,8 +5,8 @@ module Switch
 export @switch
 
 macro switch(value, body)
-    cases = {}
-    bodies = {}
+    cases = Any[]
+    bodies = Any[]
 
     endlabel = gensym("switchend")
 
@@ -18,7 +18,7 @@ macro switch(value, body)
     for arg in body.args
         if isa(arg, Expr) && arg.head == :macrocall && arg.args[1] == symbol("@case")
             push!(cases, arg.args[2])
-            push!(bodies, {})
+            push!(bodies, Any[])
             push!(labels, gensym("switchlabel"))
             next_is_default = false
         elseif isa(arg, Expr) && arg.head == :macrocall && arg.args[1] == symbol("@default")
@@ -27,7 +27,7 @@ macro switch(value, body)
             end
             hasdefault = true
             push!(cases, nothing)
-            push!(bodies, {})
+            push!(bodies, Any[])
             default_label = gensym("switchlabel")
             push!(labels, default_label)
             next_is_default = true
@@ -41,7 +41,7 @@ macro switch(value, body)
         end
     end
 
-    dispatch = {}
+    dispatch = Any[]
     for (case, label) in zip(cases, labels)
         if label == default_label
             continue
@@ -58,7 +58,7 @@ macro switch(value, body)
         push!(dispatch, Expr(:symbolicgoto, default_label))
     end
 
-    labeledbody = {}
+    labeledbody = Any[]
     for (body, label) in zip(bodies, labels)
         push!(labeledbody, Expr(:symboliclabel, label))
         push!(labeledbody, body...)
